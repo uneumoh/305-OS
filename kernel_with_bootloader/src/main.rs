@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
-#![feature(allow_internal_unstable)] //demanded by #[allow_internal_unstable(print_internals, format_args_nl)] in my std.rs
+#![feature(allow_internal_unstable)]
+//demanded by #[allow_internal_unstable(print_internals, format_args_nl)] in my std.rs
 //below is for x86 interrupts
 #![feature(abi_x86_interrupt)]
 mod interrupts;
@@ -40,7 +41,10 @@ bootloader_api::entry_point!(my_entry_point, config = &BOOTLOADER_CONFIG);
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-use crate::{std::input_str, task::{simple_executor::SimpleExecutor, Task}};
+use crate::{
+    std::input_str,
+    task::{simple_executor::SimpleExecutor, Task},
+};
 
 //use lazy static to allow declaration of static without initializing with a constant value
 //Mutex from spin is used for control of threads access.
@@ -112,7 +116,7 @@ fn my_entry_point(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
     //Let's see some more smart pointer examples
     use smart_pointer_examples::*;
     box_vs_rc();
-    
+
     let root = create_tree();
     add_child(&root);
     print_tree(root);
@@ -127,11 +131,11 @@ fn my_entry_point(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
     use task_example::*;
     executor.spawn(Task::new(example_task()));
     executor.run();
-   
+
     //Exercise: write a macro named thread_spawn! for the above
     //that will receive only the task function to spawn
-    
-    //Sharing data    
+
+    //Sharing data
     let data = Arc::new(Mutex::new(task_example::SharedData { value: 30 }));
     executor.spawn(Task::new(run_modify_data(data.clone())));
     executor.run();
@@ -144,10 +148,9 @@ fn my_entry_point(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
 
     futures::join!(thread1, thread2);
     */
-    
+
     //2. Illustrate a ready-made executor
     //Do this for std environment.
-
 
     //For premptive multitasking, we use interrupts
     interrupts::init();
@@ -156,10 +159,9 @@ fn my_entry_point(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
     print!("Enter string: ");
     let input = match input_str() {
         Some(value) => value,
-        None => "".to_owned()
+        None => "".to_owned(),
     };
     println!("\nString entered is '{}'", input);
-
 
     // invoke a breakpoint exception for test
     //x86_64::instructions::interrupts::int3();
@@ -167,11 +169,10 @@ fn my_entry_point(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
     //println!("Did not crash after breakpoint exception");
 
     // Below can trigger a page fault. Just for test
-    /* 
+    /*
     unsafe {
         *(0xdeadbeef as *mut u8) = 42; //invalid memory address
     };*/
-    
 
     loop {
         hlt(); //stop x86_64 from being unnecessarily busy while looping
